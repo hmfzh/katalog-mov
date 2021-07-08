@@ -1,13 +1,24 @@
-package com.d3if0028.katalogmov
+package com.d3if0028.katalogmov.ui
 
 import android.os.Bundle
+import android.util.Log
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
+import com.d3if0028.katalogmov.R
+import com.d3if0028.katalogmov.model.Constant
+import com.d3if0028.katalogmov.model.MovieResponse
+import com.d3if0028.katalogmov.retrofit.ApiService
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
+
+    private val Tag:String = "MainActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,6 +29,35 @@ class MainActivity : AppCompatActivity() {
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        getMovie()
+    }
+
+    fun getMovie(){
+        ApiService().endpoint.getMovieNowPlaying(Constant.API_KEY,1)
+                .enqueue(object : Callback<MovieResponse>{
+                    override fun onResponse(call: Call<MovieResponse>, response: Response<MovieResponse>) {
+                        if(response.isSuccessful){
+                            showMovie(response.body()!!)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
+                        Log.d(Tag,t.toString())
+                    }
+
+                })
+    }
+
+    fun showMovie(response:MovieResponse){
+            Log.d(Tag,"responseMovie: $response")
+    }
+
+    fun showMessage(msg:String){
+        Toast.makeText(applicationContext,msg,Toast.LENGTH_SHORT).show()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
