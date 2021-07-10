@@ -39,21 +39,27 @@ class MainActivity : AppCompatActivity() {
     fun getMovie(){
         ApiService().endpoint.getMovieNowPlaying(Constant.API_KEY,1)
                 .enqueue(object : Callback<MovieResponse>{
-                    override fun onResponse(call: Call<MovieResponse>, response: Response<MovieResponse>) {
+                    override fun onResponse(call: Call<MovieResponse>,
+                                            response: Response<MovieResponse>) {
                         if(response.isSuccessful){
                             showMovie(response.body()!!)
                         }
                     }
 
                     override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
-                        Log.d(Tag,t.toString())
+                        Log.d(Tag,"errorResponse: $t")
                     }
 
                 })
     }
 
     fun showMovie(response:MovieResponse){
-            Log.d(Tag,"responseMovie: $response")
+        Log.d(Tag,"responseMovie: $response")
+        Log.d(Tag,"total_pages: ${response.total_pages}")
+
+        for (movie in response.results){
+            Log.d(Tag,"movie_title: ${movie.title}" )
+        }
     }
 
     fun showMessage(msg:String){
