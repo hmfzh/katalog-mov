@@ -2,9 +2,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.d3if0028.katalogmov.ui.MainActivity">
+
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_popular"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:title="Popular"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_now_playing"
+        android:orderInCategory="100"
+        android:title="Now Playing"
         app:showAsAction="never" />
 </menu>
