@@ -31,6 +31,8 @@ class MainAdapter(var movies : ArrayList<MovieModel>, var listener:onAdapterList
                 .into(holder.view.image_poster);
 
         holder.view.image_poster.setOnClickListener {
+            Constant.MOVIE_ID = movie.id!!
+            Constant.MOVIE_TITLE = movie.title!!
             listener.onClick(movie)
         }
     }
@@ -46,6 +48,11 @@ class MainAdapter(var movies : ArrayList<MovieModel>, var listener:onAdapterList
 
     public fun setData(newMovies:List<MovieModel>){
         movies.clear()
+        movies.addAll(newMovies)
+        notifyDataSetChanged()
+    }
+
+    public fun setDataNextPage(newMovies:List<MovieModel>){
         movies.addAll(newMovies)
         notifyDataSetChanged()
     }

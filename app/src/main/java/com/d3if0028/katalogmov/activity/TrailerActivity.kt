@@ -1,4 +1,4 @@
-package com.d3if0028.katalogmov.ui
+package com.d3if0028.katalogmov.activity
 
 import android.os.Bundle
 import android.view.View

@@ -1,11 +1,8 @@
-package com.d3if0028.katalogmov.ui
+package com.d3if0028.katalogmov.activity
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import com.google.android.material.appbar.CollapsingToolbarLayout
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import com.d3if0028.katalogmov.R
 import com.d3if0028.katalogmov.model.Constant
@@ -13,7 +10,6 @@ import com.d3if0028.katalogmov.model.DetailResponse
 import com.d3if0028.katalogmov.retrofit.ApiService
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_detail.*
-import kotlinx.android.synthetic.main.adapter_main.view.*
 import kotlinx.android.synthetic.main.content_detail.*
 import retrofit2.Call
 import retrofit2.Callback

@@ -1,16 +1,14 @@
-package com.d3if0028.katalogmov.ui
+package com.d3if0028.katalogmov.activity
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.GridLayout
 import android.widget.Toast
+import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.GridLayoutManager
 import com.d3if0028.katalogmov.R
 import com.d3if0028.katalogmov.adapter.MainAdapter
@@ -32,26 +30,42 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var mainAdapter: MainAdapter
     private var movieKategori = 0
-
     private val api = ApiService().endpoint
+    private var isScrolling = false
+    private var currentPage = 1
+    private var totalPage = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
         setUpRecyleView()
+        setUpListener()
+    }
+
+    private fun setUpListener() {
+        scroolView.setOnScrollChangeListener(object:NestedScrollView.OnScrollChangeListener{
+            override fun onScrollChange(v: NestedScrollView?, scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int) {
+                if(scrollY == v!!.getChildAt(0).measuredHeight - v.measuredHeight){
+                    if(!isScrolling){
+                        if(currentPage <= totalPage ){
+                            getMovieNextPage()
+                        }
+                    }
+                }
+            }
+        })
     }
 
     override fun onStart() {
         super.onStart()
         getMovie()
+        showLoadingNextPage(false)
     }
 
     private fun setUpRecyleView() {
        mainAdapter = MainAdapter(arrayListOf(),object:MainAdapter.onAdapterListener{
            override fun onClick(movie: MovieModel) {
-               Constant.MOVIE_ID = movie.id!!
-               Constant.MOVIE_TITLE = movie.title!!
                startActivity(Intent(applicationContext,DetailActivity::class.java))
            }
 
@@ -62,7 +76,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun getMovie(){
+    private fun getMovie(){
+        scroolView.scrollTo(0,0)
+        currentPage = 1
         showLoading(true)
 
         var apiCall: Call<MovieResponse>? = null
@@ -93,10 +109,55 @@ class MainActivity : AppCompatActivity() {
                 })
     }
 
+    fun getMovieNextPage(){
+        currentPage += 1
+        showLoadingNextPage(true)
+
+        var apiCall: Call<MovieResponse>? = null
+        when(movieKategori){
+            moviePopular ->{
+                apiCall = api.getMoviePopular(Constant.API_KEY,currentPage)
+            }
+            movieNowPlaying->{
+                apiCall= api.getMovieNowPlaying(Constant.API_KEY,currentPage)
+            }
+        }
+
+        apiCall!!
+                .enqueue(object : Callback<MovieResponse>{
+                    override fun onResponse(call: Call<MovieResponse>,
+                                            response: Response<MovieResponse>) {
+                        showLoadingNextPage(false)
+                        if(response.isSuccessful){
+                            showMovieNextPage(response.body()!!)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
+                        Log.d(Tag,"errorResponse: $t")
+                        showLoadingNextPage(false)
+                    }
+
+                })
+    }
+
     fun showLoading(loading:Boolean){
         when(loading){
             true -> progress_movie.visibility = View.VISIBLE
             false -> progress_movie.visibility = View.GONE
+        }
+    }
+
+    fun showLoadingNextPage(loading:Boolean){
+        when (loading) {
+            true -> {
+                isScrolling = true
+                progress_movie_next_page.visibility = View.VISIBLE
+            }
+            false -> {
+                isScrolling = false
+                progress_movie_next_page . visibility = View.GONE
+            }
         }
     }
 
@@ -107,9 +168,22 @@ class MainActivity : AppCompatActivity() {
 //        for (movie in response.results){
 //            Log.d(Tag,"movie_title: ${movie.title}" )
 //        }
-
+        totalPage = response.total_pages!!.toInt()
         mainAdapter.setData(response.results)
     }
+
+    fun showMovieNextPage(response:MovieResponse){
+//        Log.d(Tag,"responseMovie: $response")
+//        Log.d(Tag,"total_pages: ${response.total_pages}")
+//
+//        for (movie in response.results){
+//            Log.d(Tag,"movie_title: ${movie.title}" )
+//        }
+        totalPage = response.total_pages!!.toInt()
+        mainAdapter.setDataNextPage(response.results)
+        showMessage("Page $currentPage")
+    }
+
 
     fun showMessage(msg:String){
         Toast.makeText(applicationContext,msg,Toast.LENGTH_SHORT).show()
