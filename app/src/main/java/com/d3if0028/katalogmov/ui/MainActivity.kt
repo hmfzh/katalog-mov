@@ -1,5 +1,6 @@
 package com.d3if0028.katalogmov.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.d3if0028.katalogmov.R
 import com.d3if0028.katalogmov.adapter.MainAdapter
 import com.d3if0028.katalogmov.model.Constant
+import com.d3if0028.katalogmov.model.MovieModel
 import com.d3if0028.katalogmov.model.MovieResponse
 import com.d3if0028.katalogmov.retrofit.ApiService
 import kotlinx.android.synthetic.main.content_main.*
@@ -22,7 +24,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 const val moviePopular = 0
-const val moveNowPlaying = 1
+const val movieNowPlaying = 1
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,6 +32,7 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var mainAdapter: MainAdapter
     private var movieKategori = 0
+
     private val api = ApiService().endpoint
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +48,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpRecyleView() {
-       mainAdapter = MainAdapter(arrayListOf())
+       mainAdapter = MainAdapter(arrayListOf(),object:MainAdapter.onAdapterListener{
+           override fun onClick(movie: MovieModel) {
+               Constant.MOVIE_ID = movie.id!!
+               Constant.MOVIE_TITLE = movie.title!!
+               startActivity(Intent(applicationContext,DetailActivity::class.java))
+           }
+
+       })
         list_movie.apply {
             layoutManager = GridLayoutManager(context,2)
             adapter = mainAdapter
@@ -60,8 +70,8 @@ class MainActivity : AppCompatActivity() {
             moviePopular ->{
                 apiCall = api.getMoviePopular(Constant.API_KEY,1)
             }
-            moveNowPlaying->{
-                apiCall= api.getMoviePopular(Constant.API_KEY,1)
+            movieNowPlaying->{
+                apiCall= api.getMovieNowPlaying(Constant.API_KEY,1)
             }
         }
 
@@ -106,15 +116,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
             R.id.action_popular -> {
             showMessage("popuar selected")
@@ -124,11 +130,12 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.action_now_playing -> {
                 showMessage("now playing selected")
-                movieKategori = moveNowPlaying
+                movieKategori = movieNowPlaying
                 getMovie()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
+
 }

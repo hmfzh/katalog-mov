@@ -11,7 +11,7 @@ import com.d3if0028.katalogmov.model.MovieModel
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.adapter_main.view.*
 
-class MainAdapter(var movies : ArrayList<MovieModel>): RecyclerView.Adapter<MainAdapter.ViewHoder>() {
+class MainAdapter(var movies : ArrayList<MovieModel>, var listener:onAdapterListener): RecyclerView.Adapter<MainAdapter.ViewHoder>() {
 
     private val Tag:String = "MainActivity"
 
@@ -29,6 +29,10 @@ class MainAdapter(var movies : ArrayList<MovieModel>): RecyclerView.Adapter<Main
                 .placeholder(R.drawable.placeholder_portrait)
                 .error(R.drawable.placeholder_portrait)
                 .into(holder.view.image_poster);
+
+        holder.view.image_poster.setOnClickListener {
+            listener.onClick(movie)
+        }
     }
 
     override fun getItemCount(): Int = movies.size
@@ -44,6 +48,10 @@ class MainAdapter(var movies : ArrayList<MovieModel>): RecyclerView.Adapter<Main
         movies.clear()
         movies.addAll(newMovies)
         notifyDataSetChanged()
+    }
+
+    interface onAdapterListener{
+        fun onClick(Movie:MovieModel)
     }
 
 }
